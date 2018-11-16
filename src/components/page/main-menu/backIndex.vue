@@ -1,9 +1,5 @@
 <template>
-
   <div class="container-fluid" style="min-width: 600px">
-
-
-
     <div class="row" style="background: #dde7ff">
       <div class="col-md-3 col-xs-6" >
           <div v-if="validateLogin"  >欢迎您！{{userName}}</div>
@@ -13,8 +9,6 @@
           <div v-if="validateLogin"><a v-on:click="logout()">退出</a></div>
       </div>
     </div>
-
-
 
     <div class="row">
       <div class="col-md-3 col-md-offset-1   col-xs-6">
@@ -35,7 +29,6 @@
     <div class="row" style="background-color: rgb(84, 92, 100);" >
       <div class="col-md-11 col-md-offset-1 col-xs-11 col-xs-offset-1"  >
         <el-menu
-
           :default-active="activeIndex"
           class="el-menu-demo"
           mode="horizontal"
@@ -43,58 +36,49 @@
           background-color="#545c64"
           text-color="#fff"
           active-text-color="#ffd04b">
-          <el-submenu v-for="(value, index) in menus"
+          <el-submenu v-for="(menu, index) in navigations"
                       :index="index"
-                      @mouseenter.native="changeContentFun(index)"
-                      @mouseover.native="overShow"
-                      @mouseout.native="outHide">
-            <template slot="title" ><i class="el-icon-document" style="color: white"></i>{{value}}<span class="s0" v-show="showItem==index&&isShowBar"></span></template>
+                      @mouseover.native="activeNavigation(menu)"
+                      @mouseout.native="showBar = false">
+            <template slot="title" ><i class="el-icon-document" style="color: white">
+              </i>{{menu.name}}<span class="s0" v-show="showItem==index&&showBar"></span>
+            </template>
           </el-submenu>
         </el-menu>
       </div>
 
     </div>
     <div class="row" >
-
-      <div class="contentBar"  v-show="isShowBar" @mouseover="overShow" @mouseout="outHide">
-
-        <div class="contentBar-item"  v-show="showItem=='2-1'"  >
+      <div class="contentBar"
+           v-show="showBar"
+           @mouseover="showBar = true"
+           @mouseout="showBar = false">
+        <div class="contentBar-item">
           <div class="row" style="margin-left: 0px;margin-right: 0px">
             <div class="col-md-3" style="border-right: 1px solid gainsboro;height: 300px;padding-left: 0px;padding-right: 0px">
                 <ul style="text-align: left">
-                  <li v-for="(i,index) in 4" :key="i" style="height: 20px" class="nav_productItem"  @mouseover="showProductItem(index,$event)" @mouseout="hideProductItem(index,$event)">{{i*10000}}</li>
+                  <li v-for="(menu, index) in navigation.subMenu"
+                      :key="index"
+                      style="height: 20px"
+                      class="nav_productItem"
+                      :class="{activeMenu: currMenu.name == menu.name}"
+                      @mouseover="activeMenu(menu)">
+                    {{menu.name}}
+                  </li>
                 </ul>
             </div>
             <div class="col-md-9">
               <div class="row">
-                <div class="col-md-4">
-                <ul v-show="nav_productItem_index=='0'">
-                  <li v-for="i in 10" :key="i">{{i}}+"hahahhha"</li>
-                </ul>
-              </div>
-                <div class="col-md-4">
-                  <ul v-show="nav_productItem_index=='0'">
-                    <li v-for="i in 10" :key="i">{{i}}+"aaaaaaaaaaaa"</li>
-                  </ul>
-                </div>
-                <div class="col-md-4">
-                  <ul v-show="nav_productItem_index=='0'">
-                    <li v-for="i in 10" :key="i">{{i+100}}+"bbbbbbbbbbb"</li>
+                <div class="col-md-4" v-for="(menu,index) in currMenu.subMenu" :key="index">
+                  <ul>
+                    <li v-for="i in 10" :key="i">{{menu.name}}</li>
                   </ul>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
-        <div class="contentBar-item"  v-show="showItem=='3-1'"  >
-          <h1>3333333333333333</h1>
-        </div>
-        <div class="contentBar-item"  v-show="showItem=='4-1'"  >
-          <h1>4444444444444</h1>
-        </div>
       </div>
-
     </div>
 <!--导航end-->
 
@@ -139,14 +123,73 @@
         activeIndex2: '2',//默认旋转哪一个 1 2 3 4
         isPC:true,
         visible2:true,
-        isShowBar:false,
+        showBar:false,
         nav_productItem_index:'-1',
-
-        menus: ['产品分类', '自主服务', '解决方案']
-
+            navigations:[
+                {
+                    name: '产品分类',
+                    subMenu: [
+                        {
+                            name: 1,
+                            subMenu:[
+                                {name: 11111},
+                                {name: 12222},
+                                {name: 13333},
+                            ]
+                        },
+                        {
+                            name: 2,
+                            subMenu:[
+                                {name: 21111},
+                                {name: 22222},
+                                {name: 23333},
+                            ]
+                        },
+                        {
+                            name: 3,
+                            subMenu:[
+                                {name: 31111},
+                                {name: 32222},
+                                {name: 33333},
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: '自主服务',
+                    subMenu: [{
+                        name: 1,
+                        values:[
+                            11111,
+                            12222,
+                            13333
+                        ]
+                    }]
+                },
+                {
+                    name: '解决方案',
+                    subMenu: [{
+                        name: 1,
+                        values:[
+                            11111,
+                            12222,
+                            13333
+                        ]
+                    }]
+                },
+            ],
+            navigation: undefined,
+            currMenu: undefined
 	    }
 	  },
 	  methods:{
+	      activeNavigation (navigation) {
+	          this.showBar = true;
+              this.navigation = navigation
+          },
+          activeMenu (menu) {
+	          this.currMenu = menu
+          },
       showProductItem(index,event){
         $(event.target).css("color","red");
         this.nav_productItem_index = index;
@@ -155,26 +198,6 @@
         $(event.target).css("color","black");
         // this.nav_productItem_index = index;
       },
-      overShow(){
-        this.isShowBar = true;
-      },
-      outHide(){
-        // this.showItem="0";
-        this.isShowBar = false;
-      },
-      outHide2(){
-        this.showItem="0";
-        // this.isShowBar = false;
-      },
-      // hiddenBar(){
-      //   alert(1)
-      //     if (this.isShowBar) {
-      //       this.isShowBar = false
-      //     }else{
-      //       this.isShowBar = true
-      //     }
-      //
-      // },
 	    getWidth(){
 	      this.width = document.documentElement.clientWidth;
 	     if(this.width<576){
@@ -237,8 +260,10 @@
 
 		},
     created (){
+
       window.addEventListener('resize', this.getWidth);
-	    //this.getWidth();
+      this.navigation = this.navigations[0];
+      this.currMenu = this.navigation.subMenu[0];
 	   this.init();
 
     },
@@ -445,7 +470,9 @@
     background-color: #fff;
   }
 
-
+  .activeMenu {
+    color: red
+  }
 
   .contentBar-item{
     /*display: none;*/
